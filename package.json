@@ -5,13 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.195",
-    "fs-web": "^1.0.1",
-    "lodash": "^4.17.21",
     "vue": "^3.2.47"
   },
   "devDependencies": {
