@@ -1,30 +1,7 @@
 import { camelToSnakeCase } from "./functions";
 
-export const generateUseCase = (path: string, value: any) => {
-  const reqMethod = Object.keys(value)[0];
-  const apiOption = Object.values(value)[0] as SwaggerPathOptions;
+export const generateUseCase = (path: string, value: ReqestContent) => {
   const useCaseName = path.split("/").pop() || "";
-
-  const getReqType = () => {
-    return apiOption.parameters.some((x) => x.in === "query")
-      ? "queryParameters"
-      : "bodyParameters";
-  };
-
-  const formatPropType = (type: string) => {
-    switch (type) {
-      case "integer":
-        return "int";
-      case "string":
-        return "String";
-      case "boolean":
-        return "bool";
-      case "number":
-        return "double";
-      default:
-        return type;
-    }
-  };
 
   const useCase = `
     import 'package:core_mitf_cpanel/core/abstracts/repositories/network_repository.dart';
@@ -54,14 +31,20 @@ export const generateUseCase = (path: string, value: any) => {
 
         final responseObj = await networkRepo.request(
             path: '${path}',
-            method: CoreNetworkMethod.${reqMethod},
+            method: CoreNetworkMethod.${value.method.toUpperCase()},
             authToken: await authRepo.userToken,
             responseClass: () => Core${useCaseName}ResponseModel(),
-            ${getReqType()}: {
-                ${apiOption.parameters
+            queryParameters: {
+                ${value.queryParamns
                   .map((x) => `${x.name}: request.${x.name},`)
                   .join("\n")}
-            });
+            },
+            bodyParameters: {
+                ${value.boadyParamns
+                  .map((x) => `${x.name}: request.${x.name},`)
+                  .join("\n")}
+            },
+          );
 
         return Core${useCaseName}UseCaseResponse(
         content: responseObj.data!,
@@ -73,46 +56,78 @@ export const generateUseCase = (path: string, value: any) => {
     } 
     `;
 
-  const useCaseRequest = `
-        import 'package:core_mitf_cpanel/core/abstracts/useCases/usecase_request.dart';
-
-        class Core${useCaseName}UseCaseRequest extends CoreUseCaseRequest {
-            ${apiOption.parameters
-              .map((x) => `final ${formatPropType(x.type)} ${x.name};`)
-              .join("\n")}
-
-
-          Core${useCaseName}UseCaseRequest({
-            ${apiOption.parameters
-              .map((x) => `required this.${x.name},`)
-              .join("\n")}
-          });
-
-          @override
-          List<String> get validationErrors => [];
-        }
-    `;
-
   // Create element with <a> tag
   const useCaseLink = document.createElement("a");
-  const useCaseRequestLink = document.createElement("a");
 
   // Create a blog object with the file content which you want to add to the file
   const useCaseFile = new Blob([useCase], { type: "dart" });
-  const useCaseRequestFile = new Blob([useCaseRequest], { type: "dart" });
 
   // Add file content in the object URL
   useCaseLink.href = URL.createObjectURL(useCaseFile);
-  useCaseRequestLink.href = URL.createObjectURL(useCaseRequestFile);
 
   // Add file name
   useCaseLink.download = `Core${useCaseName}UseCase.dart`;
-  useCaseRequestLink.download = `Core${useCaseName}UseCaseRequest.dart`;
 
   // Add click event to <a> tag to save file.
   useCaseLink.click();
-  useCaseRequestLink.click();
 
   URL.revokeObjectURL(useCaseLink.href);
+
+  // and then finally
+  generateUseCaseRequest(path, value);
+  generateUseCaseResponse(path, value);
+};
+
+export const generateUseCaseRequest = (path: string, value: ReqestContent) => {
+  const useCaseName = path.split("/").pop() || "";
+
+  const formatPropType = (type: string) => {
+    switch (type) {
+      case "integer":
+        return "int";
+      case "string":
+        return "String";
+      case "boolean":
+        return "bool";
+      case "number":
+        return "double";
+      default:
+        return type;
+    }
+  };
+
+  const useCaseRequest = `
+  import 'package:core_mitf_cpanel/core/abstracts/useCases/usecase_request.dart';
+
+  class Core${useCaseName}UseCaseRequest extends CoreUseCaseRequest {
+      ${value.boadyParamns
+        .map((x) => `final ${formatPropType(x.type)} ${x.name};`)
+        .join("\n")}
+      ${value.queryParamns
+        .map((x) => `final ${formatPropType(x.type)} ${x.name};`)
+        .join("\n")}
+
+
+    Core${useCaseName}UseCaseRequest({
+      ${value.boadyParamns.map((x) => `required this.${x.name},`).join("\n")}
+      ${value.queryParamns.map((x) => `required this.${x.name},`).join("\n")}
+    });
+
+    @override
+    List<String> get validationErrors => [];
+  }
+`;
+
+  const useCaseRequestLink = document.createElement("a");
+
+  const useCaseRequestFile = new Blob([useCaseRequest], { type: "dart" });
+  useCaseRequestLink.href = URL.createObjectURL(useCaseRequestFile);
+
+  useCaseRequestLink.download = `Core${useCaseName}UseCaseRequest.dart`;
+
+  useCaseRequestLink.click();
+
   URL.revokeObjectURL(useCaseRequestLink.href);
 };
+
+export const generateUseCaseResponse = (path: string, value: any) => {};

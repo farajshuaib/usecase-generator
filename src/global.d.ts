@@ -22,8 +22,6 @@ interface SwaggerDefinitions {
   [key: string]: any;
 }
 
-
-
 interface SwaggerDefinitionProperty {
   type: "object" | "string" | "integer" | "array" | "boolean" | "number";
   required: string[];
@@ -71,4 +69,13 @@ interface SwaggerPathResponse {
   schema: {
     $ref: string;
   };
+}
+
+interface ReqestContent {
+  method: RequestMethod;
+  url: string;
+  boadyParamns: any[];
+  queryParamns: any[];
+  operationId: string;
+  response: any;
 }

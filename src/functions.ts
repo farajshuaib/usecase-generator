@@ -1,11 +1,3 @@
-export const getRequestMethod = (value: any): string => {
-  return Object.keys(value)[0];
-};
-
-export const getRequestData = (value: any) => {
-  return Object.values(value)[0];
-};
-
 export const getElementColor = (value: RequestMethod) => {
   switch (value) {
     case "get":
@@ -29,3 +21,30 @@ export const getElementColor = (value: RequestMethod) => {
 
 export const camelToSnakeCase = (str: string) =>
   str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+export const getResponseProp = (swagger: any, resDef: string) => {
+  const definition = swagger?.definitions[resDef];
+  console.log(definition);
+
+  let properties;
+
+  if (definition && Object.hasOwnProperty.call(definition, "allOf")) {
+    console.log(definition);
+    let ref =
+      definition?.allOf[1]?.properties.content.$ref ||
+      definition?.allOf[1]?.properties.content.items.$ref;
+      console.log('ref', ref);
+      
+    if (ref) {
+      getResponseProp(swagger, ref.split("/").pop() as string);
+    } else {
+      properties = definition?.allOf[1]?.properties;
+    }
+  } else {
+    properties = definition?.properties;
+  }
+
+  console.log(properties);
+
+  return properties;
+};
