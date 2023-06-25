@@ -11,8 +11,8 @@ export const generateUseCase = (path: string, value: ReqestContent) => {
     import 'package:core_mitf_cpanel/infrastructure/authentication/authentication_repository.dart';
     import 'package:injectable/injectable.dart';
 
-    import 'core_${camelToSnakeCase(useCaseName)}_usecase_request.dart';
-    import 'core_${camelToSnakeCase(useCaseName)}_usecase_response.dart';
+    import '${camelToSnakeCase(useCaseName)}_usecase_request.dart';
+    import '${camelToSnakeCase(useCaseName)}_usecase_response.dart';
 
     @injectable
     class Core${useCaseName}UseCase extends CoreAuthenticatedUseCase<
@@ -31,7 +31,7 @@ export const generateUseCase = (path: string, value: ReqestContent) => {
 
         final responseObj = await networkRepo.request(
             path: '${path}',
-            method: CoreNetworkMethod.${value.method.toUpperCase()},
+            method: CoreNetworkMethod.${value.method},
             authToken: await authRepo.userToken,
             responseClass: () => Core${useCaseName}ResponseModel(),
             queryParameters: {
@@ -66,7 +66,7 @@ export const generateUseCase = (path: string, value: ReqestContent) => {
   useCaseLink.href = URL.createObjectURL(useCaseFile);
 
   // Add file name
-  useCaseLink.download = `Core${useCaseName}UseCase.dart`;
+  useCaseLink.download = `${camelToSnakeCase(useCaseName)}_usecase.dart`;
 
   // Add click event to <a> tag to save file.
   useCaseLink.click();
@@ -123,11 +123,39 @@ export const generateUseCaseRequest = (path: string, value: ReqestContent) => {
   const useCaseRequestFile = new Blob([useCaseRequest], { type: "dart" });
   useCaseRequestLink.href = URL.createObjectURL(useCaseRequestFile);
 
-  useCaseRequestLink.download = `Core${useCaseName}UseCaseRequest.dart`;
+  useCaseRequestLink.download = `${camelToSnakeCase(
+    useCaseName
+  )}_usecase_request.dart`;
 
   useCaseRequestLink.click();
 
   URL.revokeObjectURL(useCaseRequestLink.href);
 };
 
-export const generateUseCaseResponse = (path: string, value: any) => {};
+export const generateUseCaseResponse = (path: string, value: any) => {
+  const useCaseName = path.split("/").pop() || "";
+  const useCaseResponse = `
+  class Core${useCaseName}UseCaseResponse {
+    final String message;
+    final dynamic content;
+  
+    Core${useCaseName}UseCaseResponse(
+      this.content,
+      this.message,
+    );
+  }
+  `;
+
+  const useCaseRequestLink = document.createElement("a");
+
+  const useCaseRequestFile = new Blob([useCaseResponse], { type: "dart" });
+  useCaseRequestLink.href = URL.createObjectURL(useCaseRequestFile);
+
+  useCaseRequestLink.download = `${camelToSnakeCase(
+    useCaseName
+  )}_usecase_response.dart`;
+
+  useCaseRequestLink.click();
+
+  URL.revokeObjectURL(useCaseRequestLink.href);
+};

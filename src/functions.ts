@@ -28,6 +28,8 @@ export const getResponseProp = (swagger: any, resDef: string) => {
 
   let properties;
 
+  
+
   if (definition && Object.hasOwnProperty.call(definition, "allOf")) {
     console.log(definition);
     let ref =
