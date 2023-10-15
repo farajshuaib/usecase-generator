@@ -1,14 +1,14 @@
 import { camelToSnakeCase } from "./functions";
 
-export const generateUseCase = (path: string, value: ReqestContent) => {
+export const generateUseCase = (path: string, value: ReqestContent, packageName: string) => {
   const useCaseName = path.split("/").pop() || "";
 
   const useCase = `
-    import 'package:core_mitf_cpanel/core/abstracts/repositories/network_repository.dart';
-    import 'package:core_mitf_cpanel/core/constants/network_method.dart';
-    import 'package:core_mitf_cpanel/core/abstracts/useCases/authenticated_usecase.dart';
-    import 'package:core_mitf_cpanel/core/helpers/int_parser_extension.dart';
-    import 'package:core_mitf_cpanel/infrastructure/authentication/authentication_repository.dart';
+    import 'package:${packageName}/core/abstracts/repositories/network_repository.dart';
+    import 'package:${packageName}/core/constants/network_method.dart';
+    import 'package:${packageName}/core/abstracts/useCases/authenticated_usecase.dart';
+    import 'package:${packageName}/core/helpers/int_parser_extension.dart';
+    import 'package:${packageName}/infrastructure/authentication/authentication_repository.dart';
     import 'package:injectable/injectable.dart';
 
     import '${camelToSnakeCase(useCaseName)}_usecase_request.dart';
@@ -74,11 +74,11 @@ export const generateUseCase = (path: string, value: ReqestContent) => {
   URL.revokeObjectURL(useCaseLink.href);
 
   // and then finally
-  generateUseCaseRequest(path, value);
-  generateUseCaseResponse(path, value);
+  generateUseCaseRequest(path, value, packageName);
+  generateUseCaseResponse(path, value, packageName);
 };
 
-export const generateUseCaseRequest = (path: string, value: ReqestContent) => {
+export const generateUseCaseRequest = (path: string, value: ReqestContent, packageName: string) => {
   const useCaseName = path.split("/").pop() || "";
 
   const formatPropType = (type: string) => {
@@ -97,7 +97,7 @@ export const generateUseCaseRequest = (path: string, value: ReqestContent) => {
   };
 
   const useCaseRequest = `
-  import 'package:core_mitf_cpanel/core/abstracts/useCases/usecase_request.dart';
+  import 'package:${packageName}/core/abstracts/useCases/usecase_request.dart';
 
   class Core${useCaseName}UseCaseRequest extends CoreUseCaseRequest {
       ${value.boadyParamns
@@ -132,7 +132,7 @@ export const generateUseCaseRequest = (path: string, value: ReqestContent) => {
   URL.revokeObjectURL(useCaseRequestLink.href);
 };
 
-export const generateUseCaseResponse = (path: string, value: any) => {
+export const generateUseCaseResponse = (path: string, value: any, packageName: string) => {
   const useCaseName = path.split("/").pop() || "";
   const useCaseResponse = `
   class Core${useCaseName}UseCaseResponse {

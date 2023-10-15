@@ -8,6 +8,7 @@ const swagger = ref<Swagger>();
 const formatedAPIs = ref<ReqestContent[]>([]);
 const selectedApi = ref<string>("");
 const jsonTextarea = ref<string>("");
+const packageName = ref<string>("");
 const responseProps = ref<any>();
 
 
@@ -100,6 +101,9 @@ watch(swagger, (newVal) => {
       <textarea id="jsonTextarea" name="jsonTextarea" class="w-full h-56 bg-[#002b36]  text-white rounded-lg p-5 my-5" v-model="jsonTextarea"
         row="10" placeholder="Paste your jsonTextarea file here " />
 
+
+        <input type="text" name="packageName" id="packageName" v-model="packageName" placeholder="Enter your package name example:core_mitf_cpanel" class="w-full  bg-[#002b36]  text-white rounded-lg px-5 py-2 my-5" />
+
       <button class="px-4 py-2 text-white bg-[#002b36] rounded-lg" @click="submitFile">
         Submit
       </button>
@@ -124,7 +128,7 @@ watch(swagger, (newVal) => {
             <span>{{ req.url }}</span>
           </p>
           <button class="px-5 py-2 text-sm text-white bg-[#002b36] rounded-lg"
-            @click="() => generateUseCase(req.url as string, req)">Generate</button>
+            @click="() => generateUseCase(req.url as string, req, packageName)">Generate</button>
           </p>
           <ul v-if="
             selectedApi === req.url
